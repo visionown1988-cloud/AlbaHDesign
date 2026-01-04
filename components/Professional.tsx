@@ -176,8 +176,8 @@ const Professional: React.FC = () => {
           <div className="lg:col-span-5 space-y-10 md:space-y-12 order-1 lg:order-1 relative z-10">
             <div className="space-y-4 md:space-y-6">
               <p className="text-gradient inline-block text-xs font-black tracking-[0.5em] uppercase">My Expertise</p>
-              <h2 className="text-5xl md:text-7xl font-black text-stone-900 tracking-tighter leading-tight md:leading-none uppercase">
-                Professional <br /> <span className="text-gradient inline-block">Expertise</span>
+              <h2 className="text-5xl md:text-7xl font-black text-stone-900 tracking-tighter leading-none uppercase">
+                CORE <br /> <span className="text-gradient inline-block">Expertise</span>
               </h2>
             </div>
             

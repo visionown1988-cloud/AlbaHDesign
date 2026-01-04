@@ -181,7 +181,7 @@ const Professional: React.FC = () => {
               </h2>
             </div>
             
-            <p className="text-stone-500 text-base md:text-lg font-light leading-relaxed max-w-md">
+            <p className="text-stone-500 text-lg font-light leading-relaxed max-w-md">
               A visual representation of my core technical competencies. I balance creative intuition with technical precision.
             </p>
 

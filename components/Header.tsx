@@ -1,7 +1,11 @@
 
 import React from 'react';
 
-const Header: React.FC = () => {
+interface HeaderProps {
+  onContactClick: () => void;
+}
+
+const Header: React.FC<HeaderProps> = ({ onContactClick }) => {
   const scrollToSection = (id: string) => {
     const element = document.getElementById(id);
     if (element) {
@@ -46,7 +50,7 @@ const Header: React.FC = () => {
           ))}
           <li>
             <button
-              onClick={() => (window.location.href = 'mailto:ceeceec168@gmail.com')}
+              onClick={onContactClick}
               className="bg-stone-900 text-white px-6 md:px-8 py-3 rounded-none text-[10px] font-bold tracking-[0.2em] hover:bg-gradient-main hover:-translate-y-0.5 active:scale-95 transition-all shadow-sm hover:shadow-orange-500/20"
             >
               CONTACT

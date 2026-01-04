@@ -5,9 +5,11 @@ import { PORTFOLIO_ITEMS } from '../constants';
 const PortfolioItemCard: React.FC<{ imageUrl: string; title: string }> = ({ imageUrl, title }) => {
   const [isHovered, setIsHovered] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
+  const [isZoomed, setIsZoomed] = useState(true);
   const [offset, setOffset] = useState({ x: 0, y: 0 });
   const containerRef = useRef<HTMLDivElement>(null);
   const lastPos = useRef({ x: 0, y: 0 });
+  const lastTouchTime = useRef(0);
 
   // Shared dragging logic for mouse and touch
   const startDragging = (clientX: number, clientY: number) => {
@@ -17,7 +19,7 @@ const PortfolioItemCard: React.FC<{ imageUrl: string; title: string }> = ({ imag
   };
 
   const moveDragging = (clientX: number, clientY: number) => {
-    if (!isDragging || !isHovered) return;
+    if (!isDragging || !isHovered || !isZoomed) return;
 
     const deltaX = clientX - lastPos.current.x;
     const deltaY = clientY - lastPos.current.y;
@@ -58,17 +60,29 @@ const PortfolioItemCard: React.FC<{ imageUrl: string; title: string }> = ({ imag
 
   // Touch Handlers for Mobile
   const handleTouchStart = (e: React.TouchEvent) => {
-    // Force hover state on touch start for mobile
-    setIsHovered(true);
-    const touch = e.touches[0];
-    startDragging(touch.clientX, touch.clientY);
+    const now = Date.now();
+    const timeDiff = now - lastTouchTime.current;
+    
+    // Detect Double Tap (less than 300ms)
+    if (timeDiff < 300) {
+      setIsZoomed(prev => !prev);
+      setOffset({ x: 0, y: 0 });
+      setIsDragging(false);
+    } else {
+      // Single Tap Logic
+      setIsHovered(true);
+      const touch = e.touches[0];
+      startDragging(touch.clientX, touch.clientY);
+    }
+    
+    lastTouchTime.current = now;
   };
 
   const handleTouchMove = (e: React.TouchEvent) => {
     const touch = e.touches[0];
     moveDragging(touch.clientX, touch.clientY);
-    // Prevent scrolling only when dragging
-    if (isDragging) {
+    // Prevent scrolling only when dragging and zoomed in
+    if (isDragging && isZoomed) {
       if (e.cancelable) e.preventDefault();
     }
   };
@@ -80,6 +94,7 @@ const PortfolioItemCard: React.FC<{ imageUrl: string; title: string }> = ({ imag
   const handleMouseLeave = () => {
     setIsHovered(false);
     setIsDragging(false);
+    setIsZoomed(true); // Reset zoom ability for next interaction
     setOffset({ x: 0, y: 0 });
   };
 
@@ -90,7 +105,7 @@ const PortfolioItemCard: React.FC<{ imageUrl: string; title: string }> = ({ imag
   return (
     <div 
       ref={containerRef}
-      className={`group relative bg-white overflow-hidden aspect-square cursor-grab active:cursor-grabbing border-stone-200 border-[0.5px] ${isDragging ? 'touch-none' : 'touch-pan-y'}`}
+      className={`group relative bg-white overflow-hidden aspect-square cursor-grab active:cursor-grabbing border-stone-200 border-[0.5px] ${isDragging && isZoomed ? 'touch-none' : 'touch-pan-y'}`}
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
       onMouseDown={handleMouseDown}
@@ -106,11 +121,17 @@ const PortfolioItemCard: React.FC<{ imageUrl: string; title: string }> = ({ imag
         draggable={false}
         className="w-full h-full object-cover transition-transform duration-500 ease-out select-none pointer-events-none"
         style={{
-          transform: isHovered 
+          transform: (isHovered && isZoomed)
             ? `scale(1.6) translate(${offset.x / 1.6}px, ${offset.y / 1.6}px)` 
             : 'scale(1) translate(0px, 0px)'
         }}
       />
+      {/* Optional Visual Indicator for Zoom Status on Mobile */}
+      {!isZoomed && isHovered && (
+        <div className="absolute bottom-2 right-2 bg-stone-900/60 backdrop-blur-md px-2 py-1 text-[8px] text-white font-bold tracking-widest uppercase pointer-events-none">
+          100% View
+        </div>
+      )}
     </div>
   );
 };
@@ -129,7 +150,8 @@ const Portfolio: React.FC = () => {
               Selected Works
             </h2>
             <p className="text-stone-500 text-lg font-light leading-relaxed">
-              Explore my design projects in detail. Hover or touch to zoom (160%) and drag to pan within the frame.
+              Explore my design projects in detail. Hover or touch to zoom (160%) and drag to pan within the frame. 
+              <span className="block mt-2 text-stone-400 text-sm font-medium italic">Mobile: Double tap to reset to 100%.</span>
             </p>
           </div>
           

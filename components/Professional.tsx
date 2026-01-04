@@ -188,7 +188,7 @@ const Professional: React.FC = () => {
             <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-1">
               {[
                 { zh: "Adobe 系列軟體應用", en: "Adobe Creative Suite Mastery" },
-                { zh: "品牌識別與策略", en: "Brand Identity & Strategy" },
+                { zh: "品牌行銷與視覺設計規劃", en: "Brand Marketing & Visual Design Planning" },
                 { zh: "刊物與編輯設計", en: "Editorial & Publication Design" }
               ].map((item, i) => (
                 <div key={i} className="flex flex-col group border-l-2 border-stone-100 pl-6 py-2 hover:border-amber-400 transition-colors bg-stone-50/30">

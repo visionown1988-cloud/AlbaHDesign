@@ -5,6 +5,7 @@ import Hero from './components/Hero';
 import Professional from './components/Professional';
 import Experience from './components/Experience';
 import Portfolio from './components/Portfolio';
+import MobileNav from './components/MobileNav';
 
 const App: React.FC = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -18,16 +19,19 @@ const App: React.FC = () => {
   };
 
   return (
-    <div className="selection:bg-orange-100 selection:text-orange-900">
+    <div className="selection:bg-orange-100 selection:text-orange-900 min-h-screen">
       <Header onContactClick={handleContactClick} />
-      <main>
+      
+      <main className="pb-16 md:pb-0">
         <Hero />
         <Professional />
         <Experience />
         <Portfolio />
       </main>
+
+      <MobileNav onContactClick={handleContactClick} />
       
-      <footer className="bg-stone-50 border-t border-stone-200 py-32">
+      <footer className="bg-stone-50 border-t border-stone-200 py-32 pb-48 md:pb-32">
         <div className="max-w-7xl mx-auto px-8">
           <div className="text-center space-y-12">
             <div className="space-y-4">

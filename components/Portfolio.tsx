@@ -7,20 +7,20 @@ const PortfolioItemCard: React.FC<{ imageUrl: string; title: string }> = ({ imag
   const [isDragging, setIsDragging] = useState(false);
   const [offset, setOffset] = useState({ x: 0, y: 0 });
   const containerRef = useRef<HTMLDivElement>(null);
-  const lastMousePos = useRef({ x: 0, y: 0 });
+  const lastPos = useRef({ x: 0, y: 0 });
 
-  const handleMouseDown = (e: React.MouseEvent) => {
+  // Shared dragging logic for mouse and touch
+  const startDragging = (clientX: number, clientY: number) => {
     if (!isHovered) return;
     setIsDragging(true);
-    lastMousePos.current = { x: e.clientX, y: e.clientY };
-    e.preventDefault();
+    lastPos.current = { x: clientX, y: clientY };
   };
 
-  const handleMouseMove = (e: React.MouseEvent) => {
+  const moveDragging = (clientX: number, clientY: number) => {
     if (!isDragging || !isHovered) return;
 
-    const deltaX = e.clientX - lastMousePos.current.x;
-    const deltaY = e.clientY - lastMousePos.current.y;
+    const deltaX = clientX - lastPos.current.x;
+    const deltaY = clientY - lastPos.current.y;
 
     setOffset(prev => {
       const newX = prev.x + deltaX;
@@ -39,10 +39,41 @@ const PortfolioItemCard: React.FC<{ imageUrl: string; title: string }> = ({ imag
       return { x: newX, y: newY };
     });
 
-    lastMousePos.current = { x: e.clientX, y: e.clientY };
+    lastPos.current = { x: clientX, y: clientY };
+  };
+
+  // Mouse Handlers
+  const handleMouseDown = (e: React.MouseEvent) => {
+    startDragging(e.clientX, e.clientY);
+    e.preventDefault();
+  };
+
+  const handleMouseMove = (e: React.MouseEvent) => {
+    moveDragging(e.clientX, e.clientY);
   };
 
   const handleMouseUp = () => {
+    setIsDragging(false);
+  };
+
+  // Touch Handlers for Mobile
+  const handleTouchStart = (e: React.TouchEvent) => {
+    // Force hover state on touch start for mobile
+    setIsHovered(true);
+    const touch = e.touches[0];
+    startDragging(touch.clientX, touch.clientY);
+  };
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    const touch = e.touches[0];
+    moveDragging(touch.clientX, touch.clientY);
+    // Prevent scrolling only when dragging
+    if (isDragging) {
+      if (e.cancelable) e.preventDefault();
+    }
+  };
+
+  const handleTouchEnd = () => {
     setIsDragging(false);
   };
 
@@ -59,18 +90,21 @@ const PortfolioItemCard: React.FC<{ imageUrl: string; title: string }> = ({ imag
   return (
     <div 
       ref={containerRef}
-      className="group relative bg-white overflow-hidden aspect-square cursor-grab active:cursor-grabbing border-stone-200 border-[0.5px]"
+      className={`group relative bg-white overflow-hidden aspect-square cursor-grab active:cursor-grabbing border-stone-200 border-[0.5px] ${isDragging ? 'touch-none' : 'touch-pan-y'}`}
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
       onMouseDown={handleMouseDown}
       onMouseMove={handleMouseMove}
       onMouseUp={handleMouseUp}
+      onTouchStart={handleTouchStart}
+      onTouchMove={handleTouchMove}
+      onTouchEnd={handleTouchEnd}
     >
       <img 
         src={imageUrl} 
         alt={title} 
         draggable={false}
-        className={`w-full h-full object-cover transition-transform duration-500 ease-out select-none pointer-events-none`}
+        className="w-full h-full object-cover transition-transform duration-500 ease-out select-none pointer-events-none"
         style={{
           transform: isHovered 
             ? `scale(1.6) translate(${offset.x / 1.6}px, ${offset.y / 1.6}px)` 
@@ -95,7 +129,7 @@ const Portfolio: React.FC = () => {
               Selected Works
             </h2>
             <p className="text-stone-500 text-lg font-light leading-relaxed">
-              Explore my design projects in detail. Hover to zoom (160%) and hold to drag and pan within the frame.
+              Explore my design projects in detail. Hover or touch to zoom (160%) and drag to pan within the frame.
             </p>
           </div>
           

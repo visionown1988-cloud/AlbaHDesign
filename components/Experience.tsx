@@ -47,11 +47,14 @@ const Experience: React.FC = () => {
               
               <div className="space-y-6">
                 <div>
-                  <div className="text-gradient inline-block text-[10px] font-black tracking-widest uppercase mb-1">{exp.period}</div>
-                  <h3 className="text-2xl font-black text-stone-900 tracking-tight group-hover:text-stone-800 transition-colors">
+                  {/* Period font size adjusted to 12px (120% of 10px) */}
+                  <div className="text-gradient inline-block text-[12px] font-black tracking-widest uppercase mb-1">{exp.period}</div>
+                  {/* Company font size adjusted to 28.8px (120% of 24px/text-2xl) */}
+                  <h3 className="text-[28.8px] font-black text-stone-900 tracking-tight group-hover:text-stone-800 transition-colors leading-tight">
                     {exp.company}
                   </h3>
-                  <div className="text-stone-400 text-[10px] font-bold tracking-[0.2em] uppercase mt-1">{exp.role}</div>
+                  {/* Role font size adjusted to 12px (120% of 10px) */}
+                  <div className="text-stone-400 text-[12px] font-bold tracking-[0.2em] uppercase mt-1">{exp.role}</div>
                 </div>
 
                 <ul className="space-y-3">

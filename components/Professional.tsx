@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { SKILLS } from '../constants';
 
 const BarChart: React.FC = () => {
@@ -25,7 +25,7 @@ const BarChart: React.FC = () => {
   );
 };
 
-const RadarChart: React.FC = () => {
+const RadarChart: React.FC<{ isVisible: boolean }> = ({ isVisible }) => {
   const size = 600; 
   const center = size / 2;
   const radius = size * 0.3;
@@ -35,16 +35,19 @@ const RadarChart: React.FC = () => {
 
   const gridLevels = Array.from({ length: levels }, (_, i) => (radius / levels) * (i + 1));
 
+  // Points for the animated skill area
   const points = data.map((skill, i) => {
-    const r = (skill.percentage / 100) * radius;
+    // When not visible, points collapse toward center for a "bloom" effect
+    const factor = isVisible ? (skill.percentage / 100) : 0.02;
+    const r = factor * radius;
     const x = center + r * Math.cos(i * angleStep - Math.PI / 2);
     const y = center + r * Math.sin(i * angleStep - Math.PI / 2);
     return `${x},${y}`;
   }).join(' ');
 
   return (
-    <div className="relative w-full aspect-square max-w-[500px] mx-auto flex items-center justify-center overflow-visible">
-      <svg viewBox={`0 0 ${size} ${size}`} className="w-full h-full overflow-visible drop-shadow-sm">
+    <div className={`relative w-full aspect-square max-w-[610px] flex items-center justify-center overflow-visible transition-all duration-[1200ms] cubic-bezier(0.34, 1.56, 0.64, 1) ${isVisible ? 'opacity-100 scale-100 rotate-0 translate-y-12 translate-x-4' : 'opacity-0 scale-75 -rotate-3 translate-y-24'}`}>
+      <svg viewBox={`0 0 ${size} ${size}`} className="w-full h-full overflow-visible">
         <defs>
           <linearGradient id="chartBorderGradient" x1="0%" y1="0%" x2="100%" y2="100%">
             <stop offset="0%" stopColor="#fcd34d" /> {/* amber-300 */}
@@ -63,6 +66,7 @@ const RadarChart: React.FC = () => {
             stroke="#e7e5e4" 
             strokeWidth="0.5" 
             strokeDasharray={i === levels - 1 ? "0" : "4 4"}
+            className={`transition-opacity duration-1000 delay-${i * 50} ${isVisible ? 'opacity-100' : 'opacity-0'}`}
           />
         ))}
 
@@ -79,25 +83,27 @@ const RadarChart: React.FC = () => {
               y2={y}
               stroke="#e7e5e4"
               strokeWidth="0.5"
+              className={`transition-opacity duration-700 delay-200 ${isVisible ? 'opacity-100' : 'opacity-0'}`}
             />
           );
         })}
 
-        {/* Data Area - Yellow/Orange Fill with Gradient Border */}
+        {/* Data Area - Clean Gradient Border without Glow */}
         <polygon
           points={points}
-          fill="rgba(251, 191, 36, 0.15)"
+          fill="rgba(251, 191, 36, 0.1)"
           stroke="url(#chartBorderGradient)" 
           strokeWidth="2.5"
-          className="transition-all duration-1000 ease-out"
+          strokeLinejoin="round"
+          className="transition-all duration-[1400ms] cubic-bezier(0.34, 1.56, 0.64, 1)"
         />
 
         {/* Center Point */}
-        <circle cx={center} cy={center} r="3" fill="#fbbf24" />
+        <circle cx={center} cy={center} r="4" fill="#fbbf24" className={`transition-transform duration-700 ${isVisible ? 'scale-100' : 'scale-0'}`} />
 
         {/* Labels */}
         {data.map((skill, i) => {
-          const labelRadius = radius + 55; 
+          const labelRadius = radius + 60; 
           const x = center + labelRadius * Math.cos(i * angleStep - Math.PI / 2);
           const y = center + labelRadius * Math.sin(i * angleStep - Math.PI / 2);
           
@@ -114,7 +120,8 @@ const RadarChart: React.FC = () => {
               fontWeight="800"
               fill="#57534e"
               textAnchor={anchor}
-              className="tracking-widest uppercase select-none"
+              style={{ transitionDelay: isVisible ? `${400 + (i * 40)}ms` : '0ms' }}
+              className={`tracking-widest uppercase select-none transition-all duration-700 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}
             >
               <tspan x={x} dy="0.3em">{skill.name}</tspan>
               <tspan x={x} dy="1.4em" fontSize="9" fill="#a8a29e" fontWeight="400">
@@ -129,11 +136,37 @@ const RadarChart: React.FC = () => {
 };
 
 const Professional: React.FC = () => {
+  const [isVisible, setIsVisible] = useState(false);
+  const sectionRef = useRef<HTMLElement>(null);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        // Toggle visibility to allow the animation to re-trigger every time it enters
+        setIsVisible(entry.isIntersecting);
+      },
+      { 
+        // Use a threshold that ensures the user actually sees a good chunk of the section
+        threshold: 0.15 
+      }
+    );
+
+    if (sectionRef.current) {
+      observer.observe(sectionRef.current);
+    }
+
+    return () => {
+      if (sectionRef.current) {
+        observer.unobserve(sectionRef.current);
+      }
+    };
+  }, []);
+
   return (
-    <section id="professional" className="py-24 md:py-48 bg-white border-y border-stone-100">
+    <section id="professional" ref={sectionRef} className="py-24 md:py-48 bg-white border-y border-stone-100 overflow-hidden">
       <div className="max-w-7xl mx-auto px-8">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-16 lg:gap-24 items-center">
-          <div className="lg:col-span-5 space-y-10 md:space-y-12 order-1 lg:order-1">
+          <div className="lg:col-span-5 space-y-10 md:space-y-12 order-1 lg:order-1 relative z-10">
             <div className="space-y-4 md:space-y-6">
               <p className="text-gradient inline-block text-xs font-black tracking-[0.5em] uppercase">My Expertise</p>
               <h2 className="text-4xl md:text-6xl font-black text-stone-900 tracking-tighter leading-tight md:leading-none uppercase">
@@ -163,13 +196,13 @@ const Professional: React.FC = () => {
             </div>
           </div>
           
-          <div className="lg:col-span-7 w-full flex justify-center order-2 lg:order-2">
+          <div className="lg:col-span-7 w-full flex justify-end order-2 lg:order-2">
             <div className="w-full">
               <div className="block md:hidden">
                 <BarChart />
               </div>
               <div className="hidden md:block w-full max-w-full">
-                <RadarChart />
+                <RadarChart isVisible={isVisible} />
               </div>
             </div>
           </div>

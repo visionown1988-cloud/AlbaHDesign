@@ -30,11 +30,14 @@ const Header: React.FC<HeaderProps> = ({ onContactClick }) => {
   return (
     <header className="fixed top-0 left-0 right-0 bg-white/90 backdrop-blur-md z-50 border-b border-stone-100">
       <nav className="max-w-7xl mx-auto px-8 h-20 flex items-center justify-between">
-        <div className="flex items-center gap-0.5 group cursor-pointer" onClick={() => window.scrollTo({top: 0, behavior: 'smooth'})}>
-          <div className="text-xl font-black tracking-tighter text-stone-900">
+        <div 
+          className="flex items-end gap-0.5 group cursor-pointer pb-1" 
+          onClick={() => window.scrollTo({top: 0, behavior: 'smooth'})}
+        >
+          <div className="text-xl font-black tracking-tighter text-stone-900 leading-none">
             ALBA<span className="text-gradient">.H</span>
           </div>
-          <div className="w-1.5 h-1.5 bg-accent-yellow mt-1 transition-transform group-hover:rotate-45"></div>
+          <div className="w-1.5 h-1.5 bg-accent-yellow mb-[3px] transition-transform group-hover:rotate-45"></div>
         </div>
         <ul className="flex items-center space-x-6 md:space-x-12">
           {navItems.map((item) => (

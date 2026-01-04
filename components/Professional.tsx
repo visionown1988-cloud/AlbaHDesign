@@ -26,6 +26,15 @@ const BarChart: React.FC = () => {
 };
 
 const RadarChart: React.FC<{ isVisible: boolean }> = ({ isVisible }) => {
+  const [windowWidth, setWindowWidth] = useState(typeof window !== 'undefined' ? window.innerWidth : 1200);
+  
+  useEffect(() => {
+    const handleResize = () => setWindowWidth(window.innerWidth);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  const isDesktop = windowWidth >= 1024;
   const size = 600; 
   const center = size / 2;
   const radius = size * 0.3;
@@ -37,7 +46,6 @@ const RadarChart: React.FC<{ isVisible: boolean }> = ({ isVisible }) => {
 
   // Points for the animated skill area
   const points = data.map((skill, i) => {
-    // When not visible, points collapse toward center for a "bloom" effect
     const factor = isVisible ? (skill.percentage / 100) : 0.02;
     const r = factor * radius;
     const x = center + r * Math.cos(i * angleStep - Math.PI / 2);
@@ -46,12 +54,12 @@ const RadarChart: React.FC<{ isVisible: boolean }> = ({ isVisible }) => {
   }).join(' ');
 
   return (
-    <div className={`relative w-full aspect-square max-w-[610px] flex items-center justify-center overflow-visible transition-all duration-[1200ms] cubic-bezier(0.34, 1.56, 0.64, 1) ${isVisible ? 'opacity-100 scale-100 rotate-0 translate-y-12 translate-x-4' : 'opacity-0 scale-75 -rotate-3 translate-y-24'}`}>
+    <div className={`relative w-full aspect-square max-w-[610px] flex items-center justify-center overflow-visible transition-all duration-[1200ms] cubic-bezier(0.34, 1.56, 0.64, 1) ${isVisible ? 'opacity-100 scale-100 rotate-0 lg:translate-y-4 lg:translate-x-16 md:translate-y-12 md:translate-x-4' : 'opacity-0 scale-75 -rotate-3 translate-y-24'}`}>
       <svg viewBox={`0 0 ${size} ${size}`} className="w-full h-full overflow-visible">
         <defs>
           <linearGradient id="chartBorderGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stopColor="#fcd34d" /> {/* amber-300 */}
-            <stop offset="100%" stopColor="#f59e0b" /> {/* amber-500 */}
+            <stop offset="0%" stopColor="#fcd34d" />
+            <stop offset="100%" stopColor="#f59e0b" />
           </linearGradient>
         </defs>
 
@@ -88,7 +96,7 @@ const RadarChart: React.FC<{ isVisible: boolean }> = ({ isVisible }) => {
           );
         })}
 
-        {/* Data Area - Clean Gradient Border without Glow */}
+        {/* Data Area */}
         <polygon
           points={points}
           fill="rgba(251, 191, 36, 0.1)"
@@ -103,7 +111,7 @@ const RadarChart: React.FC<{ isVisible: boolean }> = ({ isVisible }) => {
 
         {/* Labels */}
         {data.map((skill, i) => {
-          const labelRadius = radius + 65; 
+          const labelRadius = radius + (isDesktop ? 65 : 55); 
           const x = center + labelRadius * Math.cos(i * angleStep - Math.PI / 2);
           const y = center + labelRadius * Math.sin(i * angleStep - Math.PI / 2);
           
@@ -116,7 +124,7 @@ const RadarChart: React.FC<{ isVisible: boolean }> = ({ isVisible }) => {
               key={i}
               x={x}
               y={y}
-              fontSize="15"
+              fontSize="14"
               fontWeight="800"
               fill="#57534e"
               textAnchor={anchor}

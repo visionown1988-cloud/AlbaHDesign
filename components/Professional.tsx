@@ -1,0 +1,182 @@
+
+import React from 'react';
+import { SKILLS } from '../constants';
+
+const BarChart: React.FC = () => {
+  return (
+    <div className="w-full space-y-6 py-8">
+      {SKILLS.map((skill, i) => (
+        <div key={i} className="space-y-2">
+          <div className="flex justify-between items-end">
+            <span className="text-xs font-bold text-stone-700 tracking-wider uppercase">{skill.name}</span>
+            <span className="text-[10px] font-medium text-stone-400">{skill.percentage}%</span>
+          </div>
+          <div className="h-1 w-full bg-stone-100 overflow-hidden">
+            <div 
+              className="h-full bg-gradient-main transition-all duration-1000 ease-out relative"
+              style={{ width: `${skill.percentage}%` }}
+            >
+               <div className="absolute right-0 top-0 w-1 h-full bg-amber-400"></div>
+            </div>
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+};
+
+const RadarChart: React.FC = () => {
+  const size = 600; 
+  const center = size / 2;
+  const radius = size * 0.3;
+  const levels = 5;
+  const data = SKILLS;
+  const angleStep = (Math.PI * 2) / data.length;
+
+  const gridLevels = Array.from({ length: levels }, (_, i) => (radius / levels) * (i + 1));
+
+  const points = data.map((skill, i) => {
+    const r = (skill.percentage / 100) * radius;
+    const x = center + r * Math.cos(i * angleStep - Math.PI / 2);
+    const y = center + r * Math.sin(i * angleStep - Math.PI / 2);
+    return `${x},${y}`;
+  }).join(' ');
+
+  return (
+    <div className="relative w-full aspect-square max-w-[500px] mx-auto flex items-center justify-center overflow-visible">
+      <svg viewBox={`0 0 ${size} ${size}`} className="w-full h-full overflow-visible drop-shadow-sm">
+        <defs>
+          <linearGradient id="chartBorderGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stopColor="#fcd34d" /> {/* amber-300 */}
+            <stop offset="100%" stopColor="#f59e0b" /> {/* amber-500 */}
+          </linearGradient>
+        </defs>
+
+        {/* Background Grid Circles */}
+        {gridLevels.map((r, i) => (
+          <circle
+            key={i}
+            cx={center}
+            cy={center}
+            r={r}
+            fill="none"
+            stroke="#e7e5e4" 
+            strokeWidth="0.5" 
+            strokeDasharray={i === levels - 1 ? "0" : "4 4"}
+          />
+        ))}
+
+        {/* Axis Lines */}
+        {data.map((_, i) => {
+          const x = center + radius * Math.cos(i * angleStep - Math.PI / 2);
+          const y = center + radius * Math.sin(i * angleStep - Math.PI / 2);
+          return (
+            <line
+              key={i}
+              x1={center}
+              y1={center}
+              x2={x}
+              y2={y}
+              stroke="#e7e5e4"
+              strokeWidth="0.5"
+            />
+          );
+        })}
+
+        {/* Data Area - Yellow/Orange Fill with Gradient Border */}
+        <polygon
+          points={points}
+          fill="rgba(251, 191, 36, 0.15)"
+          stroke="url(#chartBorderGradient)" 
+          strokeWidth="2.5"
+          className="transition-all duration-1000 ease-out"
+        />
+
+        {/* Center Point */}
+        <circle cx={center} cy={center} r="3" fill="#fbbf24" />
+
+        {/* Labels */}
+        {data.map((skill, i) => {
+          const labelRadius = radius + 55; 
+          const x = center + labelRadius * Math.cos(i * angleStep - Math.PI / 2);
+          const y = center + labelRadius * Math.sin(i * angleStep - Math.PI / 2);
+          
+          let anchor: "start" | "middle" | "end" = "middle";
+          if (x > center + 40) anchor = "start";
+          else if (x < center - 40) anchor = "end";
+
+          return (
+            <text
+              key={i}
+              x={x}
+              y={y}
+              fontSize="11"
+              fontWeight="800"
+              fill="#57534e"
+              textAnchor={anchor}
+              className="tracking-widest uppercase select-none"
+            >
+              <tspan x={x} dy="0.3em">{skill.name}</tspan>
+              <tspan x={x} dy="1.4em" fontSize="9" fill="#a8a29e" fontWeight="400">
+                {skill.percentage}%
+              </tspan>
+            </text>
+          );
+        })}
+      </svg>
+    </div>
+  );
+};
+
+const Professional: React.FC = () => {
+  return (
+    <section id="professional" className="py-24 md:py-48 bg-white border-y border-stone-100">
+      <div className="max-w-7xl mx-auto px-8">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-16 lg:gap-24 items-center">
+          <div className="lg:col-span-5 space-y-10 md:space-y-12 order-1 lg:order-1">
+            <div className="space-y-4 md:space-y-6">
+              <p className="text-gradient inline-block text-xs font-black tracking-[0.5em] uppercase">My Expertise</p>
+              <h2 className="text-4xl md:text-6xl font-black text-stone-900 tracking-tighter leading-tight md:leading-none uppercase">
+                Professional <br /> <span className="text-gradient inline-block">Expertise</span>
+              </h2>
+            </div>
+            
+            <p className="text-stone-500 text-base md:text-lg font-light leading-relaxed max-w-md">
+              A visual representation of my core technical competencies. I balance creative intuition with technical precision.
+            </p>
+
+            <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-1">
+              {[
+                { zh: "Adobe 系列軟體應用", en: "Adobe Creative Suite Mastery" },
+                { zh: "品牌識別與策略", en: "Brand Identity & Strategy" },
+                { zh: "刊物與編輯設計", en: "Editorial & Publication Design" }
+              ].map((item, i) => (
+                <div key={i} className="flex flex-col group border-l-2 border-stone-100 pl-6 py-2 hover:border-amber-400 transition-colors bg-stone-50/30">
+                  <span className="text-sm md:text-base font-bold text-stone-700 tracking-wider uppercase mb-1">
+                    {item.zh}
+                  </span>
+                  <span className="text-[9px] md:text-[10px] text-stone-400 font-medium tracking-widest uppercase">
+                    {item.en}
+                  </span>
+                </div>
+              ))}
+            </div>
+          </div>
+          
+          <div className="lg:col-span-7 w-full flex justify-center order-2 lg:order-2">
+            <div className="w-full">
+              <div className="block md:hidden">
+                <BarChart />
+              </div>
+              <div className="hidden md:block w-full max-w-full">
+                <RadarChart />
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+};
+
+export default Professional;

@@ -27,6 +27,7 @@ const BarChart: React.FC = () => {
 
 const RadarChart: React.FC<{ isVisible: boolean }> = ({ isVisible }) => {
   const [windowWidth, setWindowWidth] = useState(typeof window !== 'undefined' ? window.innerWidth : 1200);
+  const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
   
   useEffect(() => {
     const handleResize = () => setWindowWidth(window.innerWidth);
@@ -61,6 +62,10 @@ const RadarChart: React.FC<{ isVisible: boolean }> = ({ isVisible }) => {
             <stop offset="0%" stopColor="#fcd34d" />
             <stop offset="100%" stopColor="#f59e0b" />
           </linearGradient>
+          <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
+            <feGaussianBlur stdDeviation="3" result="blur" />
+            <feComposite in="SourceGraphic" in2="blur" operator="over" />
+          </filter>
         </defs>
 
         {/* Background Grid Circles */}
@@ -82,6 +87,7 @@ const RadarChart: React.FC<{ isVisible: boolean }> = ({ isVisible }) => {
         {data.map((_, i) => {
           const x = center + radius * Math.cos(i * angleStep - Math.PI / 2);
           const y = center + radius * Math.sin(i * angleStep - Math.PI / 2);
+          const isHovered = hoveredIndex === i;
           return (
             <line
               key={i}
@@ -89,9 +95,9 @@ const RadarChart: React.FC<{ isVisible: boolean }> = ({ isVisible }) => {
               y1={center}
               x2={x}
               y2={y}
-              stroke="#e7e5e4"
-              strokeWidth="0.5"
-              className={`transition-opacity duration-700 delay-200 ${isVisible ? 'opacity-100' : 'opacity-0'}`}
+              stroke={isHovered ? "#fbbf24" : "#e7e5e4"}
+              strokeWidth={isHovered ? "1.5" : "0.5"}
+              className={`transition-all duration-300 delay-200 ${isVisible ? 'opacity-100' : 'opacity-0'}`}
             />
           );
         })}
@@ -106,15 +112,37 @@ const RadarChart: React.FC<{ isVisible: boolean }> = ({ isVisible }) => {
           className="transition-all duration-[1400ms] cubic-bezier(0.34, 1.56, 0.64, 1)"
         />
 
+        {/* Highlighted Data Point on Hover */}
+        {data.map((skill, i) => {
+          const factor = isVisible ? (skill.percentage / 100) : 0;
+          const r = factor * radius;
+          const x = center + r * Math.cos(i * angleStep - Math.PI / 2);
+          const y = center + r * Math.sin(i * angleStep - Math.PI / 2);
+          const isHovered = hoveredIndex === i;
+          
+          return (
+            <circle
+              key={`point-${i}`}
+              cx={x}
+              cy={y}
+              r={isHovered ? "6" : "0"}
+              fill="#fbbf24"
+              filter="url(#glow)"
+              className="transition-all duration-300 pointer-events-none"
+              style={{ opacity: isHovered ? 1 : 0 }}
+            />
+          );
+        })}
+
         {/* Center Point */}
         <circle cx={center} cy={center} r="4" fill="#fbbf24" className={`transition-transform duration-700 ${isVisible ? 'scale-100' : 'scale-0'}`} />
 
         {/* Labels */}
         {data.map((skill, i) => {
-          // Responsive label distance: Desktop gets 65, Tablet/Smaller gets 55 (increased from 45)
           const labelRadius = radius + (isDesktop ? 65 : 55); 
           const x = center + labelRadius * Math.cos(i * angleStep - Math.PI / 2);
           const y = center + labelRadius * Math.sin(i * angleStep - Math.PI / 2);
+          const isHovered = hoveredIndex === i;
           
           let anchor: "start" | "middle" | "end" = "middle";
           if (x > center + 40) anchor = "start";
@@ -126,14 +154,21 @@ const RadarChart: React.FC<{ isVisible: boolean }> = ({ isVisible }) => {
               x={x}
               y={y}
               fontSize="14"
-              fontWeight="800"
-              fill="#57534e"
+              fontWeight={isHovered ? "900" : "800"}
+              fill={isHovered ? "#1c1917" : "#57534e"}
               textAnchor={anchor}
-              style={{ transitionDelay: isVisible ? `${400 + (i * 40)}ms` : '0ms' }}
+              onMouseEnter={() => setHoveredIndex(i)}
+              onMouseLeave={() => setHoveredIndex(null)}
+              style={{ 
+                transition: 'all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1)',
+                transform: isHovered ? 'scale(1.2)' : 'scale(1)',
+                transformOrigin: `${x}px ${y}px`,
+                cursor: 'default'
+              }}
               className={`tracking-widest uppercase select-none transition-all duration-700 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}
             >
               <tspan x={x} dy="0.3em">{skill.name}</tspan>
-              <tspan x={x} dy="1.7em" fontSize="9" fill="#a8a29e" fontWeight="400">
+              <tspan x={x} dy="1.7em" fontSize="9" fill={isHovered ? "#f59e0b" : "#a8a29e"} fontWeight={isHovered ? "700" : "400"}>
                 {skill.percentage}%
               </tspan>
             </text>

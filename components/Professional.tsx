@@ -8,7 +8,7 @@ const BarChart: React.FC = () => {
       {SKILLS.map((skill, i) => (
         <div key={i} className="space-y-2">
           <div className="flex justify-between items-end">
-            <span className="text-xs font-bold text-stone-700 tracking-wider uppercase">{skill.name}</span>
+            <span className="text-[12.25px] font-bold text-stone-700 tracking-wider uppercase">{skill.name}</span>
             <span className="text-[10px] font-medium text-stone-400">{skill.percentage}%</span>
           </div>
           <div className="h-1 w-full bg-stone-100 overflow-hidden">
@@ -111,6 +111,7 @@ const RadarChart: React.FC<{ isVisible: boolean }> = ({ isVisible }) => {
 
         {/* Labels */}
         {data.map((skill, i) => {
+          // Responsive label distance: Desktop gets 65, Tablet/Smaller gets 55 (increased from 45)
           const labelRadius = radius + (isDesktop ? 65 : 55); 
           const x = center + labelRadius * Math.cos(i * angleStep - Math.PI / 2);
           const y = center + labelRadius * Math.sin(i * angleStep - Math.PI / 2);
@@ -175,7 +176,7 @@ const Professional: React.FC = () => {
           <div className="lg:col-span-5 space-y-10 md:space-y-12 order-1 lg:order-1 relative z-10">
             <div className="space-y-4 md:space-y-6">
               <p className="text-gradient inline-block text-xs font-black tracking-[0.5em] uppercase">My Expertise</p>
-              <h2 className="text-4xl md:text-6xl font-black text-stone-900 tracking-tighter leading-tight md:leading-none uppercase">
+              <h2 className="text-5xl md:text-7xl font-black text-stone-900 tracking-tighter leading-tight md:leading-none uppercase">
                 Professional <br /> <span className="text-gradient inline-block">Expertise</span>
               </h2>
             </div>

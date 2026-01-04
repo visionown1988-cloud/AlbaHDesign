@@ -103,7 +103,7 @@ const RadarChart: React.FC<{ isVisible: boolean }> = ({ isVisible }) => {
 
         {/* Labels */}
         {data.map((skill, i) => {
-          const labelRadius = radius + 60; 
+          const labelRadius = radius + 65; 
           const x = center + labelRadius * Math.cos(i * angleStep - Math.PI / 2);
           const y = center + labelRadius * Math.sin(i * angleStep - Math.PI / 2);
           
@@ -116,7 +116,7 @@ const RadarChart: React.FC<{ isVisible: boolean }> = ({ isVisible }) => {
               key={i}
               x={x}
               y={y}
-              fontSize="11"
+              fontSize="15"
               fontWeight="800"
               fill="#57534e"
               textAnchor={anchor}
@@ -124,7 +124,7 @@ const RadarChart: React.FC<{ isVisible: boolean }> = ({ isVisible }) => {
               className={`tracking-widest uppercase select-none transition-all duration-700 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}
             >
               <tspan x={x} dy="0.3em">{skill.name}</tspan>
-              <tspan x={x} dy="1.4em" fontSize="9" fill="#a8a29e" fontWeight="400">
+              <tspan x={x} dy="1.7em" fontSize="9" fill="#a8a29e" fontWeight="400">
                 {skill.percentage}%
               </tspan>
             </text>
@@ -142,11 +142,9 @@ const Professional: React.FC = () => {
   useEffect(() => {
     const observer = new IntersectionObserver(
       ([entry]) => {
-        // Toggle visibility to allow the animation to re-trigger every time it enters
         setIsVisible(entry.isIntersecting);
       },
       { 
-        // Use a threshold that ensures the user actually sees a good chunk of the section
         threshold: 0.15 
       }
     );

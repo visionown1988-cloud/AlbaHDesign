@@ -176,7 +176,7 @@ const Portfolio: React.FC = () => {
               onClick={() => setIsModalOpen(true)}
               className="bg-stone-900 text-white px-12 py-5 text-[12px] font-bold tracking-[0.3em] hover:bg-gradient-main hover:-translate-y-0.5 active:scale-95 transition-all uppercase shadow-lg hover:shadow-orange-500/20"
             >
-              VIEW FULL PORTFOLIO (PDF)
+              VIEW MORE via PDF
             </button>
         </div>
       </div>

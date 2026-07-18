@@ -1,14 +1,28 @@
 
 import React, { useState } from 'react';
+import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
 import Header from './components/Header';
 import Hero from './components/Hero';
 import Professional from './components/Professional';
 import Experience from './components/Experience';
 import Portfolio from './components/Portfolio';
 import MobileNav from './components/MobileNav';
+import Gifts from './components/Gifts';
 
-const App: React.FC = () => {
+const Home: React.FC = () => {
+  return (
+    <main className="pb-16 md:pb-0">
+      <Hero />
+      <Professional />
+      <Experience />
+      <Portfolio />
+    </main>
+  );
+};
+
+const AppContent: React.FC = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const location = useLocation();
 
   const handleContactClick = () => {
     setIsModalOpen(true);
@@ -22,14 +36,12 @@ const App: React.FC = () => {
     <div className="selection:bg-orange-100 selection:text-orange-900 min-h-screen">
       <Header onContactClick={handleContactClick} />
       
-      <main className="pb-16 md:pb-0">
-        <Hero />
-        <Professional />
-        <Experience />
-        <Portfolio />
-      </main>
+      <Routes>
+        <Route path="/" element={<Home />} />
+        <Route path="/gifts" element={<Gifts />} />
+      </Routes>
 
-      <MobileNav onContactClick={handleContactClick} />
+      {location.pathname === '/' && <MobileNav onContactClick={handleContactClick} />}
       
       <footer className="bg-stone-50 border-t border-stone-200 py-32 pb-48 md:pb-32">
         <div className="max-w-7xl mx-auto px-8">
@@ -137,6 +149,14 @@ const App: React.FC = () => {
         </div>
       )}
     </div>
+  );
+};
+
+const App: React.FC = () => {
+  return (
+    <Router>
+      <AppContent />
+    </Router>
   );
 };
 

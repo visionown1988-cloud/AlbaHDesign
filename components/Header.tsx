@@ -1,22 +1,42 @@
 
-import React from 'react';
+import React, { useEffect } from 'react';
+import { useLocation, useNavigate, Link } from 'react-router-dom';
 
 interface HeaderProps {
   onContactClick: () => void;
 }
 
 const Header: React.FC<HeaderProps> = ({ onContactClick }) => {
-  const scrollToSection = (id: string) => {
-    const element = document.getElementById(id);
-    if (element) {
-      const offset = 80;
-      const elementPosition = element.getBoundingClientRect().top + window.pageYOffset;
-      const offsetPosition = elementPosition - offset;
+  const location = useLocation();
+  const navigate = useNavigate();
 
-      window.scrollTo({
-        top: offsetPosition,
-        behavior: 'smooth'
-      });
+  useEffect(() => {
+    if (location.hash) {
+      const element = document.getElementById(location.hash.substring(1));
+      if (element) {
+        const offset = 80;
+        const elementPosition = element.getBoundingClientRect().top + window.pageYOffset;
+        window.scrollTo({
+          top: elementPosition - offset,
+          behavior: 'smooth'
+        });
+      }
+    }
+  }, [location]);
+
+  const handleNavClick = (id: string) => {
+    if (location.pathname !== '/') {
+      navigate(`/#${id}`);
+    } else {
+      const element = document.getElementById(id);
+      if (element) {
+        const offset = 80;
+        const elementPosition = element.getBoundingClientRect().top + window.pageYOffset;
+        window.scrollTo({
+          top: elementPosition - offset,
+          behavior: 'smooth'
+        });
+      }
     }
   };
 
@@ -32,7 +52,7 @@ const Header: React.FC<HeaderProps> = ({ onContactClick }) => {
       <nav className="max-w-7xl mx-auto px-8 h-20 flex items-center justify-between">
         <div 
           className="flex items-end gap-0.5 group cursor-pointer pb-1" 
-          onClick={() => window.scrollTo({top: 0, behavior: 'smooth'})}
+          onClick={() => navigate('/')}
         >
           <div className="text-xl font-black tracking-tighter text-stone-900 leading-none">
             ALBA<span className="text-gradient">.H</span>
@@ -43,7 +63,7 @@ const Header: React.FC<HeaderProps> = ({ onContactClick }) => {
           {navItems.map((item) => (
             <li key={item.id} className="hidden md:block">
               <button
-                onClick={() => scrollToSection(item.id)}
+                onClick={() => handleNavClick(item.id)}
                 className="text-[10px] font-bold tracking-[0.2em] text-stone-400 hover:text-stone-900 transition-all uppercase relative group py-2"
               >
                 {item.label}
@@ -51,6 +71,15 @@ const Header: React.FC<HeaderProps> = ({ onContactClick }) => {
               </button>
             </li>
           ))}
+          <li className="hidden md:block">
+            <Link
+              to="/gifts"
+              className={`text-[10px] font-bold tracking-[0.2em] transition-all uppercase relative group py-2 ${location.pathname === '/gifts' ? 'text-stone-900' : 'text-stone-400 hover:text-stone-900'}`}
+            >
+              禮贈品 (Gifts)
+              <span className={`absolute bottom-0 left-0 h-[1.5px] bg-accent-yellow transition-all duration-300 ${location.pathname === '/gifts' ? 'w-full' : 'w-0 group-hover:w-full'}`}></span>
+            </Link>
+          </li>
           <li>
             <button
               onClick={onContactClick}
